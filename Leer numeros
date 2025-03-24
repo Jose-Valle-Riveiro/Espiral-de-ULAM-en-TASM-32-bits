@@ -1,0 +1,136 @@
+.model small
+.data
+	cadena DB ' Ingrese la cantidad de puntos $'
+	cadena2 DB ' ERROR: vuelva a ingresar el numero $'
+	acumulador DB 3 dup(0) ;es una variable con 3 posiciones, donde vamos a poner los 3 numeros que leemos del teclado
+	b DB 100, 10, 1 ;sirve para multiplicarlo por la variable acumulador a la hora de convertirlo
+	cantPuntos DW 0 ;cantidad de puntos que ingresa el usuario
+	puntoX DW 1 ;coordenada inicial en x
+	puntoY DW 0 ;coordenada incial en y
+	direccion DB 0	;Direccion actual
+	contador DW 0 
+	limite DW 1
+	cantidadPasos DW 1
+.stack
+.code
+programa:
+;inicializar
+	MOV AX, @Data
+	MOV DS, AX
+	JMP Logica
+	
+	MENSAJE_ERROR:
+		MOV DX, OFFSET cadena2	;asigna la direccion donde se inicia nuestra variable cadena
+		MOV AH, 09H
+		INT 21H
+		JMP CAPTURAR_NUMERO	;vuelve a leer los numeros
+	
+	Logica:
+;Mensaje al usuario
+	MOV DX, OFFSET cadena	;asigna la direccion donde se inicia nuestra variable cadena
+	MOV AH, 09H
+	INT 21H
+	
+	INICIALIZAR_CONTADOR:
+	;BORRAR PANTALLA
+		;MOV AH, 0FH
+		;INT 10H
+		;MOV AH, 0
+		;INT 10H 
+		;inicializar el contador:
+		MOV DI, 0	;inicializa un registro indice en cero
+		
+	CAPTURAR_NUMERO:
+		MOV AX, 0 ;limpia ax
+	;Primero se lee un caracter desde el teclado:
+		MOV AH, 01H
+		INT 21H
+		
+		CMP AL, 48
+		JL MENSAJE_ERROR ;salta si es menor que 48, es decir lo que ingreso el usuario no es un numero
+		CMP AL, 57
+		JA MENSAJE_ERROR ;salta si es mayor que 57
+
+		MOV acumulador[di], al ;el numero que se capturo se mueve a la posicion del contador en la variable acumulador
+		SUB acumulador[di], 30H ; convierto de ASCII a numero
+		
+		INC DI		;incremento en 1 el indice del acumulador
+		CMP DI, 3	;comparo el indice del acumulador con 3 para saber cuando ya haya capturado los 3 numeros
+		JB CAPTURAR_NUMERO
+		
+		;para saber que capturo el acumulador:
+		
+		;MOV DL, acumulador[0]
+		;add dl, 30h
+		;mov ah, 02h 
+		;int 21h
+		
+		;MOV DL, acumulador[1]
+		;add dl, 30h
+		;mov ah, 02h 
+		;int 21h
+		
+		;MOV DL, acumulador[2]
+		;add dl, 30h
+		;mov ah, 02h 
+		;int 21h
+		
+	;cuando ya termino de capturar el numero:
+		MOV SI, 2
+		MOV DI, 0
+		JMP CONVERTIR_NUMERO
+		
+	CONVERTIR_NUMERO:
+		MOV AX, 0
+		MOV AL, acumulador[SI] ;el numero que quiero multiplicar debe estar en AL
+		MUL b[SI] ;el resultado de la multiplicacion queda en al
+		
+		JO LIMPIAR_ACUMULADOR ;si el numero excede la capacidad del registro, se limpia el acumulador
+		JC LIMPIAR_ACUMULADOR ;si el numero excede la capacidad del registro, se limpia el acumulador
+		
+		ADD cantPuntos, AX ;se suma a cantpuntos, el numero que este en al
+		JC LIMPIAR_ACUMULADOR ;si el numero excede la capacidad del registro, se limpia el acumulador
+		
+		DEC SI
+		INC DI		;contador para saber el numero de digitos q hemos convertido
+		CMP DI, 3	;se compara con 3 para saber si ya se convirtieron los 3 numeros
+		JB CONVERTIR_NUMERO ;sino se vuelve a correr convertir_numero
+		
+		JMP IMPRIMIR_NUMERO
+		
+	LIMPIAR_ACUMULADOR:
+	;BORRAR PANTALLA
+		MOV AH, 0FH
+		INT 10H
+		MOV AH, 0
+		INT 10H 
+
+		MOV cantPuntos, 0	;limpiamos el numero
+	;limpiamos acumulador
+		MOV acumulador[0], 0
+		MOV acumulador[1], 0	
+		MOV acumulador[2], 0
+		
+		MOV DI, 0	;di es igual a 0
+		
+		MOV DX, OFFSET cadena	;asigna la direccion donde se inicia nuestra variable cadena
+		MOV AH, 09H
+		INT 21H
+		
+		JMP CAPTURAR_NUMERO
+	
+	IMPRIMIR_NUMERO:
+		
+		
+	
+		
+	;GUARDAR_NUMERO:
+		;MOV cantPuntos, BX ;se guarda el numero
+		
+	CONTINUAR:
+		
+	
+	Finalizar:
+		MOV AH, 4CH
+		INT 21H
+end programa
