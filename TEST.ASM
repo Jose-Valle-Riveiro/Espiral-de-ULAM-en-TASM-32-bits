@@ -20,15 +20,7 @@
 programa:
     MOV AX, @data
     MOV DS, AX
-    JMP Logica
 
-MENSAJE_ERROR:
-    MOV DX, OFFSET cadena2
-    MOV AH, 09H
-    INT 21H
-    JMP CAPTURAR_NUMERO
-
-Logica:
     MOV DX, OFFSET cadena
     MOV AH, 09H
     INT 21H
@@ -42,9 +34,9 @@ CAPTURAR_NUMERO:
     INT 21H
 
     CMP AL, 48
-    JL MENSAJE_ERROR
+    JL LIMPIAR_ACUMULADOR
     CMP AL, 57
-    JA MENSAJE_ERROR
+    JA LIMPIAR_ACUMULADOR
 
     MOV acumulador[di], al
     SUB acumulador[di], 30H
@@ -68,6 +60,10 @@ CONVERTIR_NUMERO:
     INC DI
     CMP DI, 3
     JB CONVERTIR_NUMERO
+	
+	CMP cantPuntos, 100
+	JA LIMPIAR_ACUMULADOR
+	
     JMP IMPRIMIR_NUMERO
 
 LIMPIAR_ACUMULADOR:
