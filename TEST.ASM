@@ -147,7 +147,7 @@ abajo:
 
 print_coords:
     CALL imprimir_coordenadas  ; Imprimir coordenadas
-    CALL IMPRIMIR_NUMERO       ; Imprimir el número de la coordenada actual
+    CALL IMPRIMIR_NUMERO2       ; Imprimir el número de la coordenada actual
     INC numActual              ; Incrementar el número en la espiral
 
     INC SI
@@ -267,6 +267,7 @@ IMPRIMIR_NUMERO2 PROC
 		LEA DX, salida ;LEA:calcula la direccion y la almacena en un registro
 		MOV AH, 09H
 		INT 21H
+        RET
 
 IMPRIMIR_NUMERO2 ENDP
 
